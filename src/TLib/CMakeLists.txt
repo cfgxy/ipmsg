@@ -41,22 +41,7 @@ set(ALL_FILES
 ################################################################################
 add_library(${PROJECT_NAME} STATIC ${ALL_FILES})
 
-use_props(${PROJECT_NAME} "${CMAKE_CONFIGURATION_TYPES}" "${DEFAULT_CXX_PROPS}")
 set(ROOT_NAMESPACE TLib)
-
-################################################################################
-# Target name
-################################################################################
-set_target_properties(${PROJECT_NAME} PROPERTIES
-    TARGET_NAME_DEBUG   "${PROJECT_NAME}_d"
-)
-################################################################################
-# Output directory
-################################################################################
-set_target_properties(${PROJECT_NAME} PROPERTIES
-    INTERPROCEDURAL_OPTIMIZATION_RELEASE "TRUE"
-)
-
 ################################################################################
 # MSVC runtime library
 ################################################################################

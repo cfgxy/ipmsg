@@ -31,25 +31,7 @@ set(ALL_FILES
 ################################################################################
 add_library(${PROJECT_NAME} SHARED ${ALL_FILES})
 
-use_props(${PROJECT_NAME} "${CMAKE_CONFIGURATION_TYPES}" "${DEFAULT_CXX_PROPS}")
 set(ROOT_NAMESPACE toast)
-
-set_target_properties(${PROJECT_NAME} PROPERTIES
-    VS_GLOBAL_KEYWORD "Win32Proj"
-)
-################################################################################
-# Target name
-################################################################################
-set_target_properties(${PROJECT_NAME} PROPERTIES
-    TARGET_NAME_DEBUG   "iptoast"
-    TARGET_NAME_RELEASE "iptoast"
-)
-################################################################################
-# Output directory
-################################################################################
-set_target_properties(${PROJECT_NAME} PROPERTIES
-    INTERPROCEDURAL_OPTIMIZATION_RELEASE "TRUE"
-)
 ################################################################################
 # MSVC runtime library
 ################################################################################
@@ -132,8 +114,8 @@ if(MSVC)
 
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "$<TARGET_FILE_DIR:${PROJECT_NAME}>\\${PROJECT_NAME}.dll"
-            "$<TARGET_FILE_DIR:${PROJECT_NAME}>\\..\\..\\${PROJECT_NAME}.dll"
-    )
+            $<TARGET_FILE_DIR:${PROJECT_NAME}>\\iptoast.dll
+            $<TARGET_FILE_DIR:${PROJECT_NAME}>\\..\\..\\iptoast.dll
+        )
 endif()
 
