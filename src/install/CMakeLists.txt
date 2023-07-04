@@ -9,6 +9,7 @@ set(no_group_source_files
     "instcmn.cpp"
     "instcore.cpp"
     "install.rc"
+    "install.exe.manifest"
 )
 source_group("" FILES ${no_group_source_files})
 

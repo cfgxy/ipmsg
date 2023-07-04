@@ -103,6 +103,7 @@ set(no_group_source_files
     "src/toolbar.cpp"
     "src/version.cpp"
     "src/ipmsg.rc"
+    "src/ipmsg.exe.manifest"
 )
 source_group("" FILES ${no_group_source_files})
 
@@ -178,7 +179,7 @@ set(ROOT_NAMESPACE IPMsg)
 # Target name
 ################################################################################
 set_target_properties(${PROJECT_NAME} PROPERTIES
-    TARGET_NAME_RELEASE "IPMsg"
+    TARGET_NAME_RELEASE ${PROJECT_NAME}
 )
 ################################################################################
 # Output directory
@@ -281,7 +282,7 @@ endif()
 ################################################################################
 add_dependencies(${PROJECT_NAME}
     sqlite3
-    toast
+    iptoast
 )
 
 # Link with other targets.
@@ -291,3 +292,11 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE "${ADDITIONAL_LIBRARY_DEPENDENCIES}")
 
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_CURRENT_SOURCE_DIR}\\src\\res\\ipexc.png"
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>\\ipexc.png
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_CURRENT_SOURCE_DIR}\\src\\res\\ipmsg.png"
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>\\ipmsg.png
+)

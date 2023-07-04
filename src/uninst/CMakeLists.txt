@@ -8,6 +8,7 @@ set(no_group_source_files
     "../version.cpp"
     "uninst.cpp"
     "uninst.rc"
+    "setup.exe.manifest"
 )
 source_group("" FILES ${no_group_source_files})
 

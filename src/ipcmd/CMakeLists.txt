@@ -14,6 +14,7 @@ set(Sources
     "cmdwin.cpp"
     "ipcmd.cpp"
     "ipcmd.rc"
+    "ipcmd.exe.manifest"
 )
 source_group("Sources" FILES ${Sources})
 

@@ -1,4 +1,4 @@
-set(PROJECT_NAME toast)
+set(PROJECT_NAME iptoast)
 
 ################################################################################
 # Source groups
@@ -128,6 +128,12 @@ if(MSVC)
         /DEBUG;
         /SUBSYSTEM:WINDOWS;
         /DYNAMICBASE:NO
+    )
+
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "$<TARGET_FILE_DIR:${PROJECT_NAME}>\\${PROJECT_NAME}.dll"
+            "$<TARGET_FILE_DIR:${PROJECT_NAME}>\\..\\..\\${PROJECT_NAME}.dll"
     )
 endif()
 
