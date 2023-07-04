@@ -31,6 +31,10 @@ set(ALL_FILES
 ################################################################################
 add_library(${PROJECT_NAME} SHARED ${ALL_FILES})
 
+target_link_libraries(${PROJECT_NAME} PRIVATE
+    delayimp.lib
+)
+
 set(ROOT_NAMESPACE toast)
 ################################################################################
 # MSVC runtime library
@@ -48,12 +52,12 @@ set_target_properties(${PROJECT_NAME} PROPERTIES MSVC_RUNTIME_LIBRARY ${MSVC_RUN
 # Compile definitions
 ################################################################################
 target_compile_definitions(${PROJECT_NAME} PRIVATE
-    "$<$<CONFIG:Debug>:"
+    $<$<CONFIG:Debug>:
         "_DEBUG"
-    ">"
-    "$<$<CONFIG:Release>:"
+    >
+    $<$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>:
         "NDEBUG"
-    ">"
+    >
     "_WINDOWS;"
     "_USRDLL;"
     "TOAST_EXPORTS;"
@@ -65,12 +69,11 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 # Compile and link options
 ################################################################################
 if(MSVC)
-    target_compile_options(${PROJECT_NAME} PRIVATE
+    target_compile_options(${PROJECT_NAME} BEFORE PRIVATE
         $<$<CONFIG:Debug>:
             /Od
         >
-        $<$<CONFIG:Release>:
-            /O2;
+        $<$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>:
             /Oi;
             /Gy;
             /FAcs
@@ -78,15 +81,14 @@ if(MSVC)
         /MP;
         /W3;
         /EHsc;
-        ${DEFAULT_CXX_DEBUG_INFORMATION_FORMAT};
-        ${DEFAULT_CXX_EXCEPTION_HANDLING};
         /Y-
     )
-    target_link_options(${PROJECT_NAME} PRIVATE
+    target_link_options(${PROJECT_NAME} BEFORE PRIVATE
         $<$<CONFIG:Debug>:
+            /DEBUG;
             /INCREMENTAL
         >
-        $<$<CONFIG:Release>:
+        $<$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>:
             /DELAYLOAD:user32.dll;
             /DELAYLOAD:Activeds.dll;
             /DELAYLOAD:comctl32.dll;
@@ -107,7 +109,6 @@ if(MSVC)
             /OPT:ICF;
             /INCREMENTAL:NO
         >
-        /DEBUG;
         /SUBSYSTEM:WINDOWS;
         /DYNAMICBASE:NO
     )

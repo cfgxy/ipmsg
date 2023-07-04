@@ -32,31 +32,17 @@ set(ROOT_NAMESPACE sqlite3)
 set_target_properties(${PROJECT_NAME} PROPERTIES
     VS_GLOBAL_KEYWORD "Win32Proj"
 )
-################################################################################
-# MSVC runtime library
-################################################################################
-get_property(MSVC_RUNTIME_LIBRARY_DEFAULT TARGET ${PROJECT_NAME} PROPERTY MSVC_RUNTIME_LIBRARY)
-string(CONCAT "MSVC_RUNTIME_LIBRARY_STR"
-    $<$<CONFIG:Debug>:
-    MultiThreadedDebug
-    >
-    $<$<CONFIG:Release>:
-    MultiThreaded
-    >
-    $<$<NOT:$<OR:$<CONFIG:Debug>,$<CONFIG:Release>>>:${MSVC_RUNTIME_LIBRARY_DEFAULT}>
-)
-set_target_properties(${PROJECT_NAME} PROPERTIES MSVC_RUNTIME_LIBRARY ${MSVC_RUNTIME_LIBRARY_STR})
 
 ################################################################################
 # Compile definitions
 ################################################################################
 target_compile_definitions(${PROJECT_NAME} PRIVATE
-    "$<$<CONFIG:Debug>:"
-    "_DEBUG"
-    ">"
-    "$<$<CONFIG:Release>:"
-    "NDEBUG"
-    ">"
+    $<$<CONFIG:Debug>:
+        "_DEBUG"
+    >
+    $<$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>:
+        "NDEBUG"
+    >
     "WIN32;"
     "_LIB;"
     "SQLITE_CASE_SENSITIVE_LIKE=1;"
@@ -71,24 +57,21 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 # Compile and link options
 ################################################################################
 if(MSVC)
-    target_compile_options(${PROJECT_NAME} PRIVATE
+    target_compile_options(${PROJECT_NAME} BEFORE PRIVATE
         $<$<CONFIG:Debug>:
-        /Od
+            /Od
         >
-        $<$<CONFIG:Release>:
-        /GL;
-        /Ox;
-        /Oi;
-        /Gy
+        $<$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>:
+            /GL;
+            /Oi;
+            /Gy
         >
         /MP;
         /W3;
-        ${DEFAULT_CXX_DEBUG_INFORMATION_FORMAT};
-        ${DEFAULT_CXX_EXCEPTION_HANDLING};
         /Y-
     )
 
-    target_link_options(${PROJECT_NAME} PRIVATE
+    target_link_options(${PROJECT_NAME} BEFORE PRIVATE
         $<$<CONFIG:Release>:
         /OPT:REF;
         /OPT:ICF

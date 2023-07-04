@@ -42,31 +42,17 @@ set(ALL_FILES
 add_library(${PROJECT_NAME} STATIC ${ALL_FILES})
 
 set(ROOT_NAMESPACE TLib)
-################################################################################
-# MSVC runtime library
-################################################################################
-get_property(MSVC_RUNTIME_LIBRARY_DEFAULT TARGET ${PROJECT_NAME} PROPERTY MSVC_RUNTIME_LIBRARY)
-string(CONCAT "MSVC_RUNTIME_LIBRARY_STR"
-    $<$<CONFIG:Debug>:
-        MultiThreadedDebug
-    >
-    $<$<CONFIG:Release>:
-        MultiThreaded
-    >
-    $<$<NOT:$<OR:$<CONFIG:Debug>,$<CONFIG:Release>>>:${MSVC_RUNTIME_LIBRARY_DEFAULT}>
-)
-set_target_properties(${PROJECT_NAME} PROPERTIES MSVC_RUNTIME_LIBRARY ${MSVC_RUNTIME_LIBRARY_STR})
 
 ################################################################################
 # Compile definitions
 ################################################################################
 target_compile_definitions(${PROJECT_NAME} PRIVATE
-    "$<$<CONFIG:Debug>:"
+    $<$<CONFIG:Debug>:
         "_DEBUG"
-    ">"
-    "$<$<CONFIG:Release>:"
+    >
+    $<$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>:
         "NDEBUG"
-    ">"
+    >
     "WIN32;"
     "_LIB;"
     "_MBCS"
@@ -76,26 +62,23 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 # Compile and link options
 ################################################################################
 if(MSVC)
-    target_compile_options(${PROJECT_NAME} PRIVATE
+    target_compile_options(${PROJECT_NAME} BEFORE PRIVATE
         $<$<CONFIG:Debug>:
             /Gm-;
             /RTC1;
+            /Od;
             /Zi
         >
-        $<$<CONFIG:Release>:
-            /Ox;
-            /Ob1;
+        $<$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>:
             /GF;
             /Gy;
-            ${DEFAULT_CXX_DEBUG_INFORMATION_FORMAT};
             /FAcs
         >
         /MP;
         /W3;
-        /EHsc;
-        ${DEFAULT_CXX_EXCEPTION_HANDLING}
+        /EHsc
     )
-    target_link_options(${PROJECT_NAME} PRIVATE
+    target_link_options(${PROJECT_NAME} BEFORE PRIVATE
         /NOLOGO
     )
 endif()

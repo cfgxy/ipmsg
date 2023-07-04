@@ -30,31 +30,17 @@ set(ALL_FILES
 add_executable(${PROJECT_NAME} ${ALL_FILES})
 
 set(ROOT_NAMESPACE install)
-################################################################################
-# MSVC runtime library
-################################################################################
-get_property(MSVC_RUNTIME_LIBRARY_DEFAULT TARGET ${PROJECT_NAME} PROPERTY MSVC_RUNTIME_LIBRARY)
-string(CONCAT "MSVC_RUNTIME_LIBRARY_STR"
-    $<$<CONFIG:Debug>:
-        MultiThreadedDebug
-    >
-    $<$<CONFIG:Release>:
-        MultiThreaded
-    >
-    $<$<NOT:$<OR:$<CONFIG:Debug>,$<CONFIG:Release>>>:${MSVC_RUNTIME_LIBRARY_DEFAULT}>
-)
-set_target_properties(${PROJECT_NAME} PROPERTIES MSVC_RUNTIME_LIBRARY ${MSVC_RUNTIME_LIBRARY_STR})
 
 ################################################################################
 # Compile definitions
 ################################################################################
 target_compile_definitions(${PROJECT_NAME} PRIVATE
-    "$<$<CONFIG:Debug>:"
+    $<$<CONFIG:Debug>:
         "_DEBUG"
-    ">"
-    "$<$<CONFIG:Release>:"
+    >
+    $<$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>:
         "NDEBUG"
-    ">"
+    >
     "WIN32;"
     "_WINDOWS;"
     "_MBCS"
@@ -64,38 +50,33 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 # Compile and link options
 ################################################################################
 if(MSVC)
-    target_compile_options(${PROJECT_NAME} PRIVATE
+    target_compile_options(${PROJECT_NAME} BEFORE PRIVATE
         $<$<CONFIG:Debug>:
             /Gm-;
             /Od;
             /RTC1;
             /Zi
         >
-        $<$<CONFIG:Release>:
-            /Ox;
-            /Ob1;
-            /Gy;
-            ${DEFAULT_CXX_DEBUG_INFORMATION_FORMAT}
+        $<$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>:
+            /Gy
         >
         /MP;
         /W3;
-        /EHsc;
-        ${DEFAULT_CXX_EXCEPTION_HANDLING}
+        /EHsc
     )
-    target_link_options(${PROJECT_NAME} PRIVATE
+    target_link_options(${PROJECT_NAME} BEFORE PRIVATE
         $<$<CONFIG:Debug>:
             /NOLOGO;
             /DEBUG;
             /INCREMENTAL
         >
-        $<$<CONFIG:Release>:
+        $<$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>:
             /DELAYLOAD:user32.dll;
             /DELAYLOAD:winmm.dll;
             /DELAYLOAD:Comctl32.dll;
             /DELAYLOAD:crypt32.dll;
             /DELAYLOAD:Netapi32.dll;
             /DELAYLOAD:Wininet.dll;
-            /DEBUG:FULL;
             /OPT:REF;
             /LTCG;
             /OPT:ICF;

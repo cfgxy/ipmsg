@@ -129,30 +129,15 @@ add_executable(${PROJECT_NAME} ${ALL_FILES})
 set(ROOT_NAMESPACE IPMsg)
 
 ################################################################################
-# MSVC runtime library
-################################################################################
-get_property(MSVC_RUNTIME_LIBRARY_DEFAULT TARGET ${PROJECT_NAME} PROPERTY MSVC_RUNTIME_LIBRARY)
-string(CONCAT "MSVC_RUNTIME_LIBRARY_STR"
-    $<$<CONFIG:Debug>:
-        MultiThreadedDebug
-    >
-    $<$<CONFIG:Release>:
-        MultiThreaded
-    >
-    $<$<NOT:$<OR:$<CONFIG:Debug>,$<CONFIG:Release>>>:${MSVC_RUNTIME_LIBRARY_DEFAULT}>
-)
-set_target_properties(${PROJECT_NAME} PROPERTIES MSVC_RUNTIME_LIBRARY ${MSVC_RUNTIME_LIBRARY_STR})
-
-################################################################################
 # Compile definitions
 ################################################################################
 target_compile_definitions(${PROJECT_NAME} PRIVATE
-    "$<$<CONFIG:Debug>:"
+    $<$<CONFIG:Debug>:
         "_DEBUG"
-    ">"
-    "$<$<CONFIG:Release>:"
+    >
+    $<$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>:
         "NDEBUG"
-    ">"
+    >
     "WIN32;"
     "_WINDOWS;"
     "_MBCS"
@@ -162,7 +147,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 # Compile and link options
 ################################################################################
 if(MSVC)
-    target_compile_options(${PROJECT_NAME} PRIVATE
+    target_compile_options(${PROJECT_NAME} BEFORE PRIVATE
         $<$<CONFIG:Debug>:
             /Gm-;
             /Od;
@@ -170,27 +155,24 @@ if(MSVC)
             /Zi;
             /GS
         >
-        $<$<CONFIG:Release>:
-            /Ox;
-            /Ob1;
+        $<$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>:
             /GF;
             /Gy;
-            ${DEFAULT_CXX_DEBUG_INFORMATION_FORMAT};
             /FAcs
         >
         /MP;
         /W3;
-        /EHsc;
-        ${DEFAULT_CXX_EXCEPTION_HANDLING}
+        /EHsc
     )
 
-    target_link_options(${PROJECT_NAME} PRIVATE
+    target_link_options(${PROJECT_NAME} BEFORE PRIVATE
         $<$<CONFIG:Debug>:
             /NOLOGO;
             /NXCOMPAT;
-            /INCREMENTAL
+            /INCREMENTAL;
+            /DEBUG;
         >
-        $<$<CONFIG:Release>:
+        $<$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>:
             /DELAYLOAD:user32.dll;
             /DELAYLOAD:Activeds.dll;
             /DELAYLOAD:comctl32.dll;
@@ -211,7 +193,6 @@ if(MSVC)
             /OPT:ICF;
             /INCREMENTAL:NO
         >
-        /DEBUG;
         /MACHINE:X64;
         /SUBSYSTEM:WINDOWS;
         /DYNAMICBASE:NO
@@ -227,6 +208,9 @@ add_dependencies(${PROJECT_NAME}
     TLib
 )
 
+target_link_libraries(${PROJECT_NAME} PRIVATE
+    delayimp.lib
+)
 # Link with other targets.
 target_link_libraries(${PROJECT_NAME} PRIVATE
     TLib
